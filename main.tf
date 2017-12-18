@@ -48,7 +48,7 @@ data "aws_acm_certificate" "this" {
 
 resource "aws_lb" "main" {
   count               = "${module.enabled.value}"
-  name                = "${var.lb_name}"
+  name                = "${module.label.id}"
   internal            = "${var.lb_is_internal}"
   #load_balancer_type  = "${lb_type}"
   #enable_deletion_protection = "${}"
@@ -56,8 +56,7 @@ resource "aws_lb" "main" {
   #ip_address_type     = "${}"
   security_groups     = ["${var.lb_security_groups}"]
   subnets             = ["${var.subnets}"]
-  tags                = "${merge(var.tags, map("Name", format("%s", var.lb_name)))}"
-  #tags                = "${module.label.tags}"
+  tags                = "${module.label.tags}"
   access_logs {
     bucket  = "${var.log_bucket_name}"
     prefix  = "${var.log_location_prefix}"
@@ -67,6 +66,13 @@ resource "aws_lb" "main" {
   subnet_mapping {
     subnet_id     = "${}"
     allocation_id = "${}"
+  }
+  */
+  /*
+  timeouts {
+    create  =
+    delete  =
+    update  =
   }
   */
   depends_on = ["aws_s3_bucket.log_bucket"]
@@ -102,7 +108,7 @@ resource "aws_s3_bucket" "log_bucket" {
 #   change to 1 resource with list of maps (port, proto?) to create
 resource "aws_lb_target_group" "target_group" {
   count    = "${module.enabled.value}"
-  name     = "${var.lb_name}-tg"
+  name     = "${module.label.id}"
   port     = "${var.backend_port}"
   protocol = "${upper(var.backend_protocol)}"
   vpc_id   = "${var.vpc_id}"
@@ -124,8 +130,7 @@ resource "aws_lb_target_group" "target_group" {
     cookie_duration = "${var.cookie_duration}"
     enabled         = "${var.lb_type == "network" ? false : var.cookie_duration == 1 ? false : true}"
   }
-  tags = "${merge(var.tags, map("Name", format("%s-tg", var.lb_name)))}"
-  #tags            = "${module.label.tags}"
+  tags     = "${module.label.tags}"
 }
 
 # TODO: change to 1 resource with list of maps (port, proto?, target group, ssl) to create
