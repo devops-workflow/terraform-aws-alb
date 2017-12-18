@@ -33,13 +33,15 @@ module "label" {
 }
 
 resource "aws_lb" "main" {
-  count           = "${module.enabled.value}"
-  name            = "${var.lb_name}"
-  subnets         = ["${var.subnets}"]
-  security_groups = ["${var.lb_security_groups}"]
-  internal        = "${var.lb_is_internal}"
-  tags            = "${merge(var.tags, map("Name", format("%s", var.lb_name)))}"
-  #tags            = "${module.label.tags}"
+  count               = "${module.enabled.value}"
+  name                = "${var.lb_name}"
+  internal            = "${var.lb_is_internal}"
+  #load_balancer_type  =
+  #idle_timeout        =
+  security_groups     = ["${var.lb_security_groups}"]
+  subnets             = ["${var.subnets}"]
+  tags                = "${merge(var.tags, map("Name", format("%s", var.lb_name)))}"
+  #tags                = "${module.label.tags}"
   access_logs {
     bucket  = "${var.log_bucket_name}"
     prefix  = "${var.log_location_prefix}"
@@ -82,6 +84,7 @@ resource "aws_lb_target_group" "target_group" {
   port     = "${var.backend_port}"
   protocol = "${upper(var.backend_protocol)}"
   vpc_id   = "${var.vpc_id}"
+  #deregistration_delay  =
   health_check {
     interval            = "${var.health_check_interval}"
     path                = "${var.health_check_path}"
@@ -92,6 +95,7 @@ resource "aws_lb_target_group" "target_group" {
     protocol            = "${var.backend_protocol}"
     matcher             = "${var.health_check_matcher}"
   }
+  # TODO: Make optional
   stickiness {
     type            = "lb_cookie"
     cookie_duration = "${var.cookie_duration}"
@@ -102,6 +106,7 @@ resource "aws_lb_target_group" "target_group" {
 }
 
 # TODO: change to 1 resource with list of maps (port, proto?, target group, ssl) to create
+#   lookup ssl cert arn from ACM
 resource "aws_lb_listener" "frontend_http" {
   count             = "${module.enabled.value ? (contains(var.lb_protocols, "HTTP") ? 1 : 0) : 0}"
   load_balancer_arn = "${aws_lb.main.arn}"
