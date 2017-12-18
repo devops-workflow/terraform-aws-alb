@@ -10,6 +10,7 @@
 # https://www.terraform.io/docs/providers/aws/r/lb_target_group_attachment.html
 # https://www.terraform.io/docs/providers/aws/d/acm_certificate.html
 #
+# Only support TCP, HTTP, or HTTPS for now. Not both HTTP and HTTPS in single call?
 # TODO Future:
 #   Multiple LBs ?
 
@@ -112,7 +113,7 @@ resource "aws_s3_bucket" "log_bucket" {
 
 # Listener (front end) ports: lb_ports_http, lb_ports_https, lb_ports_tcp
 # Target group (back end) ports: lb_ports_http, lb_ports_https, lb_ports_tcp
-/*
+/* Issues handling this. Stay with flat lists and maps
 ports = [
   {
     instance_port     =
