@@ -41,6 +41,10 @@ variable "enabled" {
   description = "Set to false to prevent the module from creating anything"
   default     = true
 }
+variable "enable_logging" {
+  description = "Enable the LB to write log entries to S3."
+  default     = false
+}
 
 
 variable "lb_is_internal" {
@@ -62,7 +66,10 @@ variable "lb_security_groups" {
   description = "The security groups with which we associate the LB. e.g. [\"sg-edcd9784\",\"sg-edcd9785\"]"
   type        = "list"
 }
-
+variable "lb_type" {
+  description = "Type of load balancer. (`application` or `network`)"
+  default     = "application"
+}
 variable "region" {
   description = "AWS region to use."
 }
@@ -133,11 +140,6 @@ variable "health_check_matcher" {
 variable "create_log_bucket" {
   description = "Create the S3 bucket (named with the log_bucket_name var) and attach a policy to allow LB logging."
   default     = false
-}
-
-variable "enable_logging" {
-  default     = false
-  description = "Enable the LB to write log entries to S3."
 }
 
 variable "log_bucket_name" {
