@@ -1,17 +1,14 @@
 #
 # Setup AWS LB (ALB/NLB)
+#   and S3 for logging, retrieve SSL cert from ACM
+#   ?? security groups, dns
 #
 # https://www.terraform.io/docs/providers/aws/r/lb.html
 # https://www.terraform.io/docs/providers/aws/r/lb_listener.html
 # https://www.terraform.io/docs/providers/aws/r/lb_listener_rule.html
 # https://www.terraform.io/docs/providers/aws/r/lb_target_group.html
 # https://www.terraform.io/docs/providers/aws/r/lb_target_group_attachment.html
-
-# TODO: move to own file
-provider "aws" {
-  region  = "${var.region}"
-  version = ">= 1.0.0"
-}
+# https://www.terraform.io/docs/providers/aws/d/acm_certificate.html
 
 module "enabled" {
   source  = "devops-workflow/boolean/local"
@@ -31,6 +28,19 @@ module "label" {
   attributes    = "${var.attributes}"
   tags          = "${var.tags}"
 }
+
+/*
+# Retrieve SSL certificate if creating SSL LB
+SSL Cert lookup
+If SSL and given -> var.cert_domain
+elif SSL -> "*.${var.env}.${var.domain}"
+else count = 0
+
+data "aws_acm_certificate" "this" {
+  count   = "${module.enabled.value}"
+  domain  = "tf.example.com"
+}
+*/
 
 resource "aws_lb" "main" {
   count               = "${module.enabled.value}"
