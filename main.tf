@@ -110,15 +110,29 @@ resource "aws_s3_bucket" "log_bucket" {
   #tags            = "${module.label.tags}"
 }
 
+# Listener (front end) ports: lb_ports_http, lb_ports_https, lb_ports_tcp
+# Target group (back end) ports: lb_ports_http, lb_ports_https, lb_ports_tcp
+/*
+ports = [
+  {
+    instance_port     =
+    instance_protocol = ""
+    lb_port           =
+    lb_protocol       = ""
+  }
+]
+*/
 locals {
   backend_protocol = "${var.type == "network" ? "TCP" : upper(var.backend_protocol)}"
+  #all_ports = "${concat(split(",", var.port), var.additional_ports)}"
 }
 # TODO: Support creating multiple
 #   change to 1 resource with list of maps (port, proto?) to create
-
 resource "aws_lb_target_group" "application" {
   count    = "${module.enabled.value && var.type == "application" ? 1 : 0}"  # "${length(local.all_ports)}"
+  #
   name     = "${module.label.id_32}"    # join("-",substr( ,0,26), port)
+  #name = "${substr(module.label.id_org,0,26 <= length(module.label.id_org) ? 26 : length(module.label.id_org))}-${local.all_ports[count.index]}"
   port     = "${var.backend_port}"      # "${local.all_ports[count.index]}"
   protocol = "${local.backend_protocol}"
   vpc_id   = "${var.vpc_id}"
