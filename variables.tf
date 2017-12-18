@@ -1,20 +1,20 @@
-variable "alb_is_internal" {
-  description = "Boolean determining if the ALB is internal or externally facing."
+variable "lb_is_internal" {
+  description = "Boolean determining if the LB is internal or externally facing."
   default     = false
 }
 
-variable "alb_name" {
-  description = "The name of the ALB as will show in the AWS EC2 ELB console."
+variable "lb_name" {
+  description = "The name of the LB as will show in the AWS EC2 ELB console."
 }
 
-variable "alb_protocols" {
-  description = "The protocols the ALB accepts. e.g.: [\"HTTP\"]"
+variable "lb_protocols" {
+  description = "The protocols the LB accepts. e.g.: [\"HTTP\"]"
   type        = "list"
   default     = ["HTTP"]
 }
 
-variable "alb_security_groups" {
-  description = "The security groups with which we associate the ALB. e.g. [\"sg-edcd9784\",\"sg-edcd9785\"]"
+variable "lb_security_groups" {
+  description = "The security groups with which we associate the LB. e.g. [\"sg-edcd9784\",\"sg-edcd9785\"]"
   type        = "list"
 }
 
@@ -86,17 +86,17 @@ variable "health_check_matcher" {
 }
 
 variable "create_log_bucket" {
-  description = "Create the S3 bucket (named with the log_bucket_name var) and attach a policy to allow ALB logging."
+  description = "Create the S3 bucket (named with the log_bucket_name var) and attach a policy to allow LB logging."
   default     = false
 }
 
 variable "enable_logging" {
   default     = false
-  description = "Enable the ALB to write log entries to S3."
+  description = "Enable the LB to write log entries to S3."
 }
 
 variable "log_bucket_name" {
-  description = "S3 bucket for storing ALB access logs. To create the bucket \"create_log_bucket\" should be set to true."
+  description = "S3 bucket for storing LB access logs. To create the bucket \"create_log_bucket\" should be set to true."
   default     = ""
 }
 
@@ -106,12 +106,12 @@ variable "log_location_prefix" {
 }
 
 variable "security_policy" {
-  description = "The security policy if using HTTPS externally on the ALB. See: https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-security-policy-table.html"
+  description = "The security policy if using HTTPS externally on the LB. See: https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-security-policy-table.html"
   default     = "ELBSecurityPolicy-2016-08"
 }
 
 variable "subnets" {
-  description = "A list of subnets to associate with the ALB. e.g. ['subnet-1a2b3c4d','subnet-1a2b3c4e','subnet-1a2b3c4f']"
+  description = "A list of subnets to associate with the LB. e.g. ['subnet-1a2b3c4d','subnet-1a2b3c4e','subnet-1a2b3c4f']"
   type        = "list"
 }
 
@@ -121,5 +121,5 @@ variable "tags" {
 }
 
 variable "vpc_id" {
-  description = "VPC id where the ALB and other resources will be deployed."
+  description = "VPC id where the LB and other resources will be deployed."
 }

@@ -1,5 +1,5 @@
 variable "log_location_prefix" {
-  default = "my-alb-logs"
+  default = "my-lb-logs"
 }
 
 variable "region" {

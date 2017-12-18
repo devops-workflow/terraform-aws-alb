@@ -3,7 +3,7 @@ Outputs used for tests
 */
 
 output "principal_account_id" {
-  value = "${module.alb.principal_account_id}"
+  value = "${module.lb.principal_account_id}"
 }
 
 output "vpc_id" {

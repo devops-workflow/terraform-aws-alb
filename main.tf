@@ -1,16 +1,16 @@
-### ALB resources
+### LB resources
 
 provider "aws" {
   region  = "${var.region}"
   version = ">= 1.0.0"
 }
 
-resource "aws_alb" "main" {
-  name            = "${var.alb_name}"
+resource "aws_lb" "main" {
+  name            = "${var.lb_name}"
   subnets         = ["${var.subnets}"]
-  security_groups = ["${var.alb_security_groups}"]
-  internal        = "${var.alb_is_internal}"
-  tags            = "${merge(var.tags, map("Name", format("%s", var.alb_name)))}"
+  security_groups = ["${var.lb_security_groups}"]
+  internal        = "${var.lb_is_internal}"
+  tags            = "${merge(var.tags, map("Name", format("%s", var.lb_name)))}"
 
   access_logs {
     bucket  = "${var.log_bucket_name}"
@@ -48,8 +48,8 @@ resource "aws_s3_bucket" "log_bucket" {
   tags          = "${merge(var.tags, map("Name", format("%s", var.log_bucket_name)))}"
 }
 
-resource "aws_alb_target_group" "target_group" {
-  name     = "${var.alb_name}-tg"
+resource "aws_lb_target_group" "target_group" {
+  name     = "${var.lb_name}-tg"
   port     = "${var.backend_port}"
   protocol = "${upper(var.backend_protocol)}"
   vpc_id   = "${var.vpc_id}"
@@ -71,31 +71,31 @@ resource "aws_alb_target_group" "target_group" {
     enabled         = "${ var.cookie_duration == 1 ? false : true}"
   }
 
-  tags = "${merge(var.tags, map("Name", format("%s-tg", var.alb_name)))}"
+  tags = "${merge(var.tags, map("Name", format("%s-tg", var.lb_name)))}"
 }
 
-resource "aws_alb_listener" "frontend_http" {
-  load_balancer_arn = "${aws_alb.main.arn}"
+resource "aws_lb_listener" "frontend_http" {
+  load_balancer_arn = "${aws_lb.main.arn}"
   port              = "80"
   protocol          = "HTTP"
-  count             = "${contains(var.alb_protocols, "HTTP") ? 1 : 0}"
+  count             = "${contains(var.lb_protocols, "HTTP") ? 1 : 0}"
 
   default_action {
-    target_group_arn = "${aws_alb_target_group.target_group.id}"
+    target_group_arn = "${aws_lb_target_group.target_group.id}"
     type             = "forward"
   }
 }
 
-resource "aws_alb_listener" "frontend_https" {
-  load_balancer_arn = "${aws_alb.main.arn}"
+resource "aws_lb_listener" "frontend_https" {
+  load_balancer_arn = "${aws_lb.main.arn}"
   port              = "443"
   protocol          = "HTTPS"
   certificate_arn   = "${var.certificate_arn}"
   ssl_policy        = "${var.security_policy}"
-  count             = "${contains(var.alb_protocols, "HTTPS") ? 1 : 0}"
+  count             = "${contains(var.lb_protocols, "HTTPS") ? 1 : 0}"
 
   default_action {
-    target_group_arn = "${aws_alb_target_group.target_group.id}"
+    target_group_arn = "${aws_lb_target_group.target_group.id}"
     type             = "forward"
   }
 }

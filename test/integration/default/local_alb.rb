@@ -15,9 +15,9 @@ ENV['AWS_REGION'] = region
 # this must match the format in examples/test_fixtures/locals.tf
 log_bucket_name = 'logs-' + region + '-' + account_id
 
-describe alb('my-alb') do
+describe lb('my-lb') do
   it { should exist }
-  its (:load_balancer_name) {should eq 'my-alb'}
+  its (:load_balancer_name) {should eq 'my-lb'}
   its (:vpc_id) {should eq vpc_id}
   it { should belong_to_vpc('my-vpc') }
   its (:type) {should eq 'application'}
@@ -26,12 +26,12 @@ describe alb('my-alb') do
   it { should have_security_group(security_group_id) }
 end
 
-describe alb_target_group('my-alb-tg') do
+describe lb_target_group('my-lb-tg') do
     it { should exist }
     its(:health_check_path) { should eq '/' }
     its(:health_check_port) { should eq 'traffic-port' }
     its(:health_check_protocol) { should eq 'HTTP' }
-    it { should belong_to_alb('my-alb') }
+    it { should belong_to_lb('my-lb') }
     it { should belong_to_vpc('my-vpc') }
  end
 
