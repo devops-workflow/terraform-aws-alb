@@ -39,22 +39,28 @@ SSL Cert lookup
 If SSL and given -> var.cert_domain
 elif SSL -> "*.${var.env}.${var.domain}"
 else count = 0
-
-data "aws_acm_certificate" "this" {
-  count   = "${module.enabled.value}"
-  domain  = "tf.example.com"
-}
 */
+locals {
+  cert_name = "*.${module.label.environment}.${module.label.organization}.com"
+}
+data "aws_acm_certificate" "this" {
+  count   = "${
+    module.enabled.value &&
+    var.type == "application" &&
+    contains(var.lb_protocols, "HTTPS")
+    ? 1 : 0}"
+  domain  = "${var.certificate_name != "" ? var.certificate_name : local.cert_name }"
+}
 
 resource "aws_lb" "main" {
   count               = "${module.enabled.value}"
-  name                = "${module.label.id}"
-  internal            = "${var.lb_is_internal}"
-  #load_balancer_type  = "${lb_type}"
+  name                = "${module.label.id_32}"
+  internal            = "${var.internal}"
+  load_balancer_type  = "${var.type}"
   #enable_deletion_protection = "${}"
-  #idle_timeout        = "${}"
+  idle_timeout        = "${var.idle_timeout}"
   #ip_address_type     = "${}"
-  security_groups     = ["${var.lb_security_groups}"]
+  security_groups     = ["${var.security_groups}"]
   subnets             = ["${var.subnets}"]
   tags                = "${module.label.tags}"
   access_logs {
@@ -79,7 +85,7 @@ resource "aws_lb" "main" {
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
-  count  = "${module.enabled.value}"
+  count  = "${module.enabled.value && var.create_log_bucket ? 1 : 0}"
   statement {
     sid = "AllowToPutLoadBalancerLogsToS3Bucket"
     actions = [
@@ -96,7 +102,7 @@ data "aws_iam_policy_document" "bucket_policy" {
 }
 
 resource "aws_s3_bucket" "log_bucket" {
-  count         = "${module.enabled.value ? (var.create_log_bucket ? 1 : 0) : 0}"
+  count         = "${module.enabled.value && var.create_log_bucket ? 1 : 0}"
   bucket        = "${var.log_bucket_name}"
   policy        = "${var.bucket_policy == "" ? data.aws_iam_policy_document.bucket_policy.json : var.bucket_policy}"
   force_destroy = "${var.force_destroy_log_bucket}"
@@ -104,13 +110,17 @@ resource "aws_s3_bucket" "log_bucket" {
   #tags            = "${module.label.tags}"
 }
 
+locals {
+  backend_protocol = "${var.type == "network" ? "TCP" : upper(var.backend_protocol)}"
+}
 # TODO: Support creating multiple
 #   change to 1 resource with list of maps (port, proto?) to create
-resource "aws_lb_target_group" "target_group" {
-  count    = "${module.enabled.value}"
-  name     = "${module.label.id}"
-  port     = "${var.backend_port}"
-  protocol = "${upper(var.backend_protocol)}"
+
+resource "aws_lb_target_group" "application" {
+  count    = "${module.enabled.value && var.type == "application" ? 1 : 0}"  # "${length(local.all_ports)}"
+  name     = "${module.label.id_32}"    # join("-",substr( ,0,26), port)
+  port     = "${var.backend_port}"      # "${local.all_ports[count.index]}"
+  protocol = "${local.backend_protocol}"
   vpc_id   = "${var.vpc_id}"
   #deregistration_delay  = "${}"
   #target_type           = "${}"
@@ -121,14 +131,32 @@ resource "aws_lb_target_group" "target_group" {
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     timeout             = "${var.health_check_timeout}"
-    protocol            = "${var.backend_protocol}"
+    protocol            = "${local.backend_protocol}"
     matcher             = "${var.health_check_matcher}"
   }
-  # TODO: Make optional. ALB only
+  # ALB only. Cannot be defined for network LB
   stickiness {
     type            = "lb_cookie"
-    cookie_duration = "${var.cookie_duration}"
-    enabled         = "${var.lb_type == "network" ? false : var.cookie_duration == 1 ? false : true}"
+    cookie_duration = "${var.cookie_duration > 0 ? var.cookie_duration : 1}"
+    enabled         = "${var.cookie_duration > 0 ? true : false}"
+  }
+  tags     = "${module.label.tags}"
+}
+resource "aws_lb_target_group" "network" {
+  count    = "${module.enabled.value && var.type == "network" ? 1 : 0}"  # "${length(local.all_ports)}"
+  name     = "${module.label.id_32}"    # join("-",substr( ,0,26), port)
+  port     = "${var.backend_port}"      # "${local.all_ports[count.index]}"
+  protocol = "${local.backend_protocol}"
+  vpc_id   = "${var.vpc_id}"
+  #deregistration_delay  = "${}"
+  #target_type           = "${}"
+  health_check {
+    interval            = "${var.health_check_interval}"
+    path                = "${var.health_check_path}"
+    port                = "${var.health_check_port}"
+    healthy_threshold   = "${var.health_check_healthy_threshold}"
+    unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
+    protocol            = "${local.backend_protocol}"
   }
   tags     = "${module.label.tags}"
 }
@@ -138,29 +166,53 @@ resource "aws_lb_target_group" "target_group" {
 #   use lb_listener_rule for additional ports
 #   Up to 3 listener types (TCP or (HTTP/HTTPS))
 resource "aws_lb_listener" "frontend_http" {
-  count             = "${module.enabled.value ? (contains(var.lb_protocols, "HTTP") ? 1 : 0) : 0}"
+  count             = "${
+    module.enabled.value &&
+    var.type == "application" &&
+    contains(var.lb_protocols, "HTTP")
+    ? 1 : 0}"   # "${length(local.all_ports)}"
   load_balancer_arn = "${aws_lb.main.arn}"
-  port              = "80"
-  protocol          = "HTTP"  # TCP. HTTP. HTTPS
+  port              = "80"  # "${local.all_ports[count.index]}"
+  protocol          = "${local.backend_protocol}"
   default_action {
-    target_group_arn = "${aws_lb_target_group.target_group.id}"
+    #target_group_arn = "${aws_lb_target_group.target_group.id}"
+    target_group_arn = "${element(concat(aws_lb_target_group.application.*.arn,aws_lb_target_group.network.*.arn), 0)}"
     type             = "forward"
   }
 }
 
 resource "aws_lb_listener" "frontend_https" {
-  count             = "${module.enabled.value ? (contains(var.lb_protocols, "HTTPS") ? 1 : 0) : 0}"
+  count             = "${
+    module.enabled.value &&
+    var.type == "application" &&
+    contains(var.lb_protocols, "HTTPS")
+    ? 1 : 0}"
   load_balancer_arn = "${aws_lb.main.arn}"
   port              = "443"
   protocol          = "HTTPS"
-  certificate_arn   = "${var.certificate_arn}"
+  certificate_arn   = "${element(concat(data.aws_acm_certificate.this.*.arn, list("")), 0)}"
   ssl_policy        = "${var.security_policy}"
+  default_action {
+    #target_group_arn = "${aws_lb_target_group.target_group.id}"
+    target_group_arn = "${element(concat(aws_lb_target_group.application.*.arn,aws_lb_target_group.network.*.arn), 0)}"
+    type             = "forward"
+  }
+}
+/*
+resource "aws_lb_listener" "network" {
+  count             = "${
+    module.enabled.value &&
+    var.type == "network"
+    ? 1 : 0}"
+  load_balancer_arn = "${aws_lb.main.arn}"
+  port              = "80"
+  protocol          = "TCP"
   default_action {
     target_group_arn = "${aws_lb_target_group.target_group.id}"
     type             = "forward"
   }
 }
-
+*/
 /*
 resource "aws_lb_listener_rule" "this" {
   count

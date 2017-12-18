@@ -1,16 +1,15 @@
 module "lb" {
   source              = "../"
   name                = "lb-svc"
-  environment         = "testing"
-  #organization        = ""
+  environment         = "one"
+  organization        = "wiser"
   #attributes      = ["role", "policy", "use", ""]
   #tags            = "${map("Key", "Value")}"
   #enabled             = false
-  region              = "us-west-2"
-  certificate_arn     = ""
   health_check_path   = ""
-  lb_name             = ""
-  lb_security_groups  = []
+  security_groups     = []
+  lb_protocols        = ["HTTP","HTTPS"]
+  type                = "network"
   subnets             = []
   vpc_id              = ""
 }
