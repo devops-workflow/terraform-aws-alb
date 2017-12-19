@@ -25,19 +25,19 @@ output "zone_id" {
 //
 output "listener_http_arn" {
   description = "The ARN of the HTTP LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.frontend_http.*.arn, list("")), 0)}"
+  value       = "${element(concat(aws_lb_listener.http.*.arn, list("")), 0)}"
 }
 output "listener_http_id" {
   description = "The ID of the LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.frontend_http.*.id, list("")), 0)}"
+  value       = "${element(concat(aws_lb_listener.http.*.id, list("")), 0)}"
 }
 output "listener_https_arn" {
   description = "The ARN of the HTTPS LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.frontend_https.*.arn, list("")), 0)}"
+  value       = "${element(concat(aws_lb_listener.https.*.arn, list("")), 0)}"
 }
 output "listener_https_id" {
   description = "The ID of the LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.frontend_https.*.id, list("")), 0)}"
+  value       = "${element(concat(aws_lb_listener.https.*.id, list("")), 0)}"
 }
 
 //

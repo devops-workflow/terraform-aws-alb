@@ -105,10 +105,19 @@ data "aws_iam_policy_document" "bucket_policy" {
 resource "aws_s3_bucket" "log_bucket" {
   count         = "${module.enabled.value && var.create_log_bucket ? 1 : 0}"
   bucket        = "${var.log_bucket_name}"
+  #acl
   policy        = "${var.bucket_policy == "" ? data.aws_iam_policy_document.bucket_policy.json : var.bucket_policy}"
   force_destroy = "${var.force_destroy_log_bucket}"
   tags          = "${merge(var.tags, map("Name", format("%s", var.log_bucket_name)))}"
   #tags            = "${module.label.tags}"
+  lifecycle_rule {
+    id = "log-expiration"
+    enabled = "true"
+    expiration {
+      days = "7" # Change to var
+    }
+    #tags  = "${module.label.tags}"
+  }
 }
 
 # Listener (front end) ports: lb_ports_http, lb_ports_https, lb_ports_tcp
@@ -122,6 +131,12 @@ ports = [
     lb_protocol       = ""
   }
 ]
+# Match backend (instance) and frontend (listener) ports
+ports {type = "list"}
+http_ports {default = "${var.ports}"}
+https_ports
+tcp_ports
+length(var.lb_protocols) > 1 # Need both HTTP & HTTPS
 */
 locals {
   backend_protocol = "${var.type == "network" ? "TCP" : upper(var.backend_protocol)}"
@@ -135,7 +150,7 @@ resource "aws_lb_target_group" "application" {
   name     = "${module.label.id_32}"    # join("-",substr( ,0,26), port)
   #name = "${substr(module.label.id_org,0,26 <= length(module.label.id_org) ? 26 : length(module.label.id_org))}-${local.all_ports[count.index]}"
   port     = "${var.backend_port}"      # "${local.all_ports[count.index]}"
-  protocol = "${local.backend_protocol}"
+  protocol = "${upper(var.backend_protocol)}"
   vpc_id   = "${var.vpc_id}"
   #deregistration_delay  = "${}"
   #target_type           = "${}"
@@ -161,7 +176,7 @@ resource "aws_lb_target_group" "network" {
   count    = "${module.enabled.value && var.type == "network" ? 1 : 0}"  # "${length(local.all_ports)}"
   name     = "${module.label.id_32}"    # join("-",substr( ,0,26), port)
   port     = "${var.backend_port}"      # "${local.all_ports[count.index]}"
-  protocol = "${local.backend_protocol}"
+  protocol = "TCP"
   vpc_id   = "${var.vpc_id}"
   #deregistration_delay  = "${}"
   #target_type           = "${}"
@@ -180,7 +195,7 @@ resource "aws_lb_target_group" "network" {
 #   lookup ssl cert arn from ACM
 #   use lb_listener_rule for additional ports
 #   Up to 3 listener types (TCP or (HTTP/HTTPS))
-resource "aws_lb_listener" "frontend_http" {
+resource "aws_lb_listener" "http" {
   count             = "${
     module.enabled.value &&
     var.type == "application" &&
@@ -196,7 +211,7 @@ resource "aws_lb_listener" "frontend_http" {
   }
 }
 
-resource "aws_lb_listener" "frontend_https" {
+resource "aws_lb_listener" "https" {
   count             = "${
     module.enabled.value &&
     var.type == "application" &&
