@@ -119,6 +119,35 @@ variable "backend_protocol" {
   description = "The protocol the backend service speaks. Options: HTTP, HTTPS, TCP, SSL (secure tcp)."
   default     = "HTTP"
 }
+variable "ports" {
+  description = "Default port set. Used fo all instance and LB port sets that are not defined"
+  default     = "80"
+}
+variable "instance_http_ports" {
+  description = "Backend HTTP instance (target group) ports"
+  default     = ""
+}
+variable "instance_https_ports" {
+  description = "Backend HTTPS instance (target group) ports"
+  default     = ""
+}
+variable "instance_tcp_ports" {
+  description = "Backend TCP instance (target group) ports"
+  default     = ""
+}
+variable "lb_http_ports" {
+  description = "Frontend HTTP listener ports"
+  default     = ""
+}
+variable "lb_https_ports" {
+  description = "Frontend HTTPS listener ports"
+  default     = ""
+}
+variable "lb_tcp_ports" {
+  description = "Frontend TCP listener ports"
+  default     = ""
+}
+
 
 ///
 /// Health Checks

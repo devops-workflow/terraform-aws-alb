@@ -12,4 +12,12 @@ module "lb" {
   type                = "network"
   subnets             = []
   vpc_id              = ""
+  ports                 = "3000,4000"
+  instance_http_ports   = "80,8080"
+  instance_https_ports  = "443"
+  instance_tcp_ports    = ""
+  lb_http_ports         = "80,8080"
+  lb_https_ports        = "443"
+  lb_tcp_ports          = ""
+
 }
