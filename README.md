@@ -1,6 +1,8 @@
 # terraform-aws-alb
-A Terraform module containing common configurations for an AWS Application Load
-Balancer (ALB) running over HTTP/HTTPS. Available through the [terraform registry](https://registry.terraform.io/modules/terraform-aws-modules/alb/aws).
+A Terraform module containing common configurations for an AWS new style Load
+Balancer (ALB/NLB). Available through the [terraform registry](https://registry.terraform.io/modules/devops-workflow/lb/aws).
+
+**NOTE:** There has been significant changes to the upstream module and this README has not been updated yet.
 
 | Branch | Build status |
 | --- | --- |
