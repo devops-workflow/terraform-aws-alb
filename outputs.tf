@@ -23,40 +23,59 @@ output "zone_id" {
 //
 // LB Listener attributes
 //
-output "listener_http_arn" {
-  description = "The ARN of the HTTP LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.http.*.arn, list("")), 0)}"
+output "listener_http_arns" {
+  description = "The ARNs of the HTTP LB Listeners"
+  value       = "${aws_lb_listener.http.*.arn}"
 }
-output "listener_http_id" {
-  description = "The ID of the HTTP LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.http.*.id, list("")), 0)}"
+output "listener_http_ids" {
+  description = "The IDs of the HTTP LB Listeners"
+  value       = "${aws_lb_listener.http.*.id}"
 }
-output "listener_https_arn" {
-  description = "The ARN of the HTTPS LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.https.*.arn, list("")), 0)}"
+output "listener_https_arns" {
+  description = "The ARNs of the HTTPS LB Listeners"
+  value       = "${aws_lb_listener.https.*.arn}"
 }
-output "listener_https_id" {
-  description = "The ID of the HTTPS LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.https.*.id, list("")), 0)}"
+output "listener_https_ids" {
+  description = "The IDs of the HTTPS LB Listeners"
+  value       = "${aws_lb_listener.https.*.id}"
 }
-output "listener_tcp_arn" {
-  description = "The ARN of the network TCP LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.network.*.arn, list("")), 0)}"
+output "listener_tcp_arns" {
+  description = "The ARNs of the network TCP LB Listeners"
+  value       = "${aws_lb_listener.network.*.arn}"
 }
-output "listener_tcp_id" {
-  description = "The ID of the network TCP LB Listener we created."
-  value       = "${element(concat(aws_lb_listener.network.*.id, list("")), 0)}"
+output "listener_tcp_ids" {
+  description = "The IDs of the network TCP LB Listeners"
+  value       = "${aws_lb_listener.network.*.id}"
+}
+output "listener_arns" {
+  description = "ARNs of all the LB Listeners"
+  value       = "${compact(concat(aws_lb_listener.http.*.arn,aws_lb_listener.https.*.arn,aws_lb_listener.network.*.arn))}"
+}
+output "listener_ids" {
+  description = "IDs of all the LB Listeners"
+  value       = "${compact(concat(aws_lb_listener.http.*.id,aws_lb_listener.https.*.id,aws_lb_listener.network.*.id))}"
 }
 
 //
 // LB Target Group attributes
 //
-/*
-output "target_group_arn" {
-  description = "ARN of the target group. Useful for passing to your Auto Scaling group module."
-  value       = "${element(concat(aws_lb_target_group.application.*.arn, aws_lb_target_group.network.*.arn, list("")), 0)}"
+output "target_group_http_arns" {
+  description = "ARNs of the HTTP target groups. Useful for passing to your Auto Scaling group module."
+  value       = "${aws_lb_target_group.application-http.*.arn}"
 }
-*/
+output "target_group_https_arns" {
+  description = "ARNs of the HTTPS target groups. Useful for passing to your Auto Scaling group module."
+  value       = "${aws_lb_target_group.application-https.*.arn}"
+}
+output "target_group_tcp_arns" {
+  description = "ARNs of the TCP target groups. Useful for passing to your Auto Scaling group module."
+  value       = "${aws_lb_target_group.network.*.arn}"
+}
+output "target_group_arns" {
+  description = "ARNs of all the target groups. Useful for passing to your Auto Scaling group module."
+  value       = "${compact(concat(aws_lb_target_group.application-http.*.arn,aws_lb_target_group.application-https.*.arn,aws_lb_target_group.network.*.arn))}"
+}
+
 # id
 # arn_suffix
 # name
