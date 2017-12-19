@@ -166,10 +166,15 @@ variable "health_check_matcher" {
 }
 variable "health_check_path" {
   description = "The URL the ELB should use for health checks. e.g. /health"
+#  default     = "/healthcheck"
 }
 variable "health_check_port" {
   description = "The port used by the health check if different from the traffic-port."
   default     = "traffic-port"
+}
+variable "health_check_protocol" {
+  description = "The protocol used by the health check."
+  default     = "HTTP"
 }
 variable "health_check_timeout" {
   description = "Seconds to leave a health check waiting before terminating it and calling the check unhealthy."

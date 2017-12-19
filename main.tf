@@ -169,7 +169,7 @@ resource "aws_lb_target_group" "application-http" {
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     timeout             = "${var.health_check_timeout}"
-    protocol            = "HTTP"
+    protocol            = "${var.health_check_protocol}"
     matcher             = "${var.health_check_matcher}"
   }
   # ALB only. Cannot be defined for network LB
@@ -203,7 +203,7 @@ resource "aws_lb_target_group" "application-https" {
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     timeout             = "${var.health_check_timeout}"
-    protocol            = "HTTP"
+    protocol            = "${var.health_check_protocol}"
     matcher             = "${var.health_check_matcher}"
   }
   # ALB only. Cannot be defined for network LB
@@ -234,7 +234,7 @@ resource "aws_lb_target_group" "network" {
     port                = "${var.health_check_port}"
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
-    protocol            = "TCP"
+    protocol            = "${var.health_check_protocol}"
   }
   tags     = "${module.label.tags}"
 }
