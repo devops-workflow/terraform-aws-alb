@@ -230,7 +230,6 @@ resource "aws_lb_target_group" "network" {
   #target_type           = "${}"
   health_check {
     interval            = "${var.health_check_interval}"
-    path                = "${var.health_check_path}"
     port                = "${var.health_check_port}"
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
