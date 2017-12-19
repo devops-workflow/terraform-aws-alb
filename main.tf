@@ -138,27 +138,6 @@ output "lb_http_ports" { value = "${local.lb_http_ports}" }
 output "lb_https_ports" { value = "${local.lb_https_ports}" }
 output "lb_tcp_ports" { value = "${local.lb_tcp_ports}" }
 */
-# Listener (front end) ports: lb_ports_http, lb_ports_https, lb_ports_tcp
-# Target group (back end) ports: lb_ports_http, lb_ports_https, lb_ports_tcp
-/* Issues handling this. Stay with flat lists and maps
-ports = [
-  {
-    instance_port     =
-    instance_protocol = ""
-    lb_port           =
-    lb_protocol       = ""
-  }
-]
-# Match backend (instance) and frontend (listener) ports
-ports {type = "list"}
-http_lb_ports {default = "${var.ports}"}
-http_instance_ports
-https_lb_ports
-https_instance_ports
-tcp_lb_ports
-tcp_instance_ports
-length(var.lb_protocols) > 1 # Need both HTTP & HTTPS
-*/
 /*
 locals {
   backend_protocol = "${var.type == "network" ? "TCP" : upper(var.backend_protocol)}"
