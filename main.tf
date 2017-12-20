@@ -62,10 +62,11 @@ resource "aws_lb" "this" {
   #enable_deletion_protection = "${}"
   idle_timeout        = "${var.idle_timeout}"
   #ip_address_type     = "${}"
-  security_groups     = ["${var.security_groups}"]
+  # TODO: not supported for `network`
+  #security_groups     = ["${var.security_groups}"]
   subnets             = ["${var.subnets}"]
   tags                = "${module.label.tags}"
-  /*
+  /* Not supported for `network`
   access_logs {
     bucket  = "${var.log_bucket_name}"
     prefix  = "${var.log_location_prefix}"
