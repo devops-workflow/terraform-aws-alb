@@ -65,8 +65,60 @@ data "aws_acm_certificate" "this" {
 /*
 resource "aws_lb" "application" {
   count               = "${module.enabled.value && var.type == "application" ? 1 : 0}"
+  name                = "${module.label.id_32}"
+  internal            = "${var.internal}"
+  load_balancer_type  = "${var.type}"
+  #enable_deletion_protection = "${}"
+  idle_timeout        = "${var.idle_timeout}"
+  #ip_address_type     = "${}"
+  security_groups     = ["${var.security_groups}"]
+  subnets             = ["${var.subnets}"]
+  tags                = "${module.label.tags}"
+  access_logs {
+    bucket  = "${var.log_bucket_name}"
+    prefix  = "${var.log_location_prefix}"
+    enabled = "${module.enable_logging.value}"
+  }
+  /*
+  subnet_mapping {
+    subnet_id     = "${}"
+    allocation_id = "${}"
+  }
+  */
+  /*
+  timeouts {
+    create  =
+    delete  =
+    update  =
+  }
+  *//*
+  depends_on = ["aws_s3_bucket.log_bucket"]
+}
+/*
 resource "aws_lb" "network" {
   count               = "${module.enabled.value && var.type == "network" ? 1 : 0}"
+  name                = "${module.label.id_32}"
+  internal            = "${var.internal}"
+  load_balancer_type  = "${var.type}"
+  #enable_deletion_protection = "${}"
+  idle_timeout        = "${var.idle_timeout}"
+  #ip_address_type     = "${}"
+  subnets             = ["${var.subnets}"]
+  tags                = "${module.label.tags}"
+  /*
+  subnet_mapping {
+    subnet_id     = "${}"
+    allocation_id = "${}"
+  }
+  */
+  /*
+  timeouts {
+    create  =
+    delete  =
+    update  =
+  }
+  *//*
+}
 */
 resource "aws_lb" "this" {
   count               = "${module.enabled.value}"
@@ -107,6 +159,7 @@ data "aws_iam_policy_document" "bucket_policy" {
   count  = "${
     module.enabled.value &&
     module.enable_logging.value &&
+    var.type == "application" &&
     var.create_log_bucket ? 1 : 0}"
   statement {
     sid = "AllowToPutLoadBalancerLogsToS3Bucket"
@@ -127,6 +180,7 @@ resource "aws_s3_bucket" "log_bucket" {
   count         = "${
     module.enabled.value &&
     module.enable_logging.value &&
+    var.type == "application &&"
     var.create_log_bucket ? 1 : 0}"
   bucket        = "${var.log_bucket_name}"
   #acl
