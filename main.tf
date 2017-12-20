@@ -61,8 +61,6 @@ data "aws_acm_certificate" "this" {
   domain  = "${var.certificate_name != "" ? var.certificate_name : local.cert_name }"
 }
 
-# TODO: need to separate into 2 resources to support logging, since network doesn't
-/*
 resource "aws_lb" "application" {
   count               = "${module.enabled.value && var.type == "application" ? 1 : 0}"
   name                = "${module.label.id_32}"
@@ -91,10 +89,10 @@ resource "aws_lb" "application" {
     delete  =
     update  =
   }
-  *//*
+  */
   depends_on = ["aws_s3_bucket.log_bucket"]
 }
-/*
+
 resource "aws_lb" "network" {
   count               = "${module.enabled.value && var.type == "network" ? 1 : 0}"
   name                = "${module.label.id_32}"
@@ -117,9 +115,10 @@ resource "aws_lb" "network" {
     delete  =
     update  =
   }
-  *//*
+  */
 }
-*/
+
+/*
 resource "aws_lb" "this" {
   count               = "${module.enabled.value}"
   name                = "${module.label.id_32}"
@@ -151,9 +150,10 @@ resource "aws_lb" "this" {
     delete  =
     update  =
   }
-  */
+  *//*
   depends_on = ["aws_s3_bucket.log_bucket"]
 }
+*/
 
 data "aws_iam_policy_document" "bucket_policy" {
   count  = "${
@@ -326,7 +326,8 @@ resource "aws_lb_listener" "http" {
     var.type == "application" &&
     contains(var.lb_protocols, "HTTP")
     ? length(compact(split(",", local.lb_http_ports))) : 0}"
-  load_balancer_arn = "${aws_lb.this.arn}"
+  #load_balancer_arn = "${aws_lb.this.arn}" # "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
+  load_balancer_arn = "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
   port              = "${element(compact(split(",",local.lb_http_ports)), count.index)}"
   protocol          = "HTTP"
   default_action {
@@ -342,7 +343,8 @@ resource "aws_lb_listener" "https" {
     var.type == "application" &&
     contains(var.lb_protocols, "HTTPS")
     ? length(compact(split(",", local.lb_https_ports))) : 0}"
-  load_balancer_arn = "${aws_lb.this.arn}"
+  #load_balancer_arn = "${aws_lb.this.arn}" # "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
+  load_balancer_arn = "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
   port              = "${element(compact(split(",",local.lb_https_ports)), count.index)}"
   protocol          = "HTTPS"
   certificate_arn   = "${element(concat(data.aws_acm_certificate.this.*.arn, list("")), 0)}"
@@ -359,7 +361,8 @@ resource "aws_lb_listener" "network" {
     module.enabled.value &&
     var.type == "network"
     ? length(compact(split(",", local.lb_tcp_ports))) : 0}"
-  load_balancer_arn = "${aws_lb.this.arn}"
+  #load_balancer_arn = "${aws_lb.this.arn}" # "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
+  load_balancer_arn = "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
   port              = "${element(compact(split(",",local.lb_tcp_ports)), count.index)}"
   protocol          = "TCP"
   default_action {
