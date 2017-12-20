@@ -1,3 +1,21 @@
+data "aws_vpc" "vpc" {
+  tags {
+    Env = "one"
+  }
+}
+data "aws_subnet_ids" "public_subnet_ids" {
+  vpc_id = "${data.aws_vpc.vpc.id}"
+  tags {
+    Network = "Public"
+  }
+}
+data "aws_subnet_ids" "private_subnet_ids" {
+  vpc_id = "${data.aws_vpc.vpc.id}"
+  tags {
+    Network = "Private"
+  }
+}
+
 module "lb" {
   source              = "../"
   name                = "lb-svc"
@@ -6,12 +24,12 @@ module "lb" {
   #attributes      = ["role", "policy", "use", ""]
   #tags            = "${map("Key", "Value")}"
   #enabled             = false
-  health_check_path   = ""
+  #health_check_path   = ""
   security_groups     = []
   lb_protocols        = ["HTTP","HTTPS"]
   type                = "network"
-  subnets             = []
-  vpc_id              = ""
+  subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
+  vpc_id              = "${data.aws_vpc.vpc.id}"
   ports                 = "3000,4000"
   instance_http_ports   = "80,8080"
   instance_https_ports  = "443"

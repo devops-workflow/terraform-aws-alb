@@ -166,7 +166,7 @@ variable "health_check_matcher" {
 }
 variable "health_check_path" {
   description = "The URL the ELB should use for health checks. e.g. /health"
-#  default     = "/healthcheck"
+  default     = "/"
 }
 variable "health_check_port" {
   description = "The port used by the health check if different from the traffic-port."

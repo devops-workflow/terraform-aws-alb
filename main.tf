@@ -53,6 +53,7 @@ data "aws_acm_certificate" "this" {
   domain  = "${var.certificate_name != "" ? var.certificate_name : local.cert_name }"
 }
 
+# TODO: need to separate into 2 resources to support logging, since network doesn't
 resource "aws_lb" "this" {
   count               = "${module.enabled.value}"
   name                = "${module.label.id_32}"
@@ -64,11 +65,13 @@ resource "aws_lb" "this" {
   security_groups     = ["${var.security_groups}"]
   subnets             = ["${var.subnets}"]
   tags                = "${module.label.tags}"
+  /*
   access_logs {
     bucket  = "${var.log_bucket_name}"
     prefix  = "${var.log_location_prefix}"
     enabled = "${var.enable_logging}"
   }
+  */
   /*
   subnet_mapping {
     subnet_id     = "${}"
