@@ -54,6 +54,12 @@ data "aws_acm_certificate" "this" {
 }
 
 # TODO: need to separate into 2 resources to support logging, since network doesn't
+/*
+resource "aws_lb" "application" {
+  count               = "${module.enabled.value && var.type == "application" ? 1 : 0}"
+resource "aws_lb" "network" {
+  count               = "${module.enabled.value && var.type == "network" ? 1 : 0}"
+*/
 resource "aws_lb" "this" {
   count               = "${module.enabled.value}"
   name                = "${module.label.id_32}"
@@ -235,6 +241,7 @@ resource "aws_lb_target_group" "network" {
   health_check {
     interval            = "${var.health_check_interval}"
     port                = "${var.health_check_port}"
+    path                = "/"
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     protocol            = "${var.health_check_protocol}"
