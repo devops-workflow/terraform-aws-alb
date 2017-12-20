@@ -180,7 +180,7 @@ resource "aws_s3_bucket" "log_bucket" {
   count         = "${
     module.enabled.value &&
     module.enable_logging.value &&
-    var.type == "application &&"
+    var.type == "application" &&
     var.create_log_bucket ? 1 : 0}"
   bucket        = "${var.log_bucket_name}"
   #acl
