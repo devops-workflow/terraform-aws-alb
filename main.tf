@@ -3,6 +3,8 @@
 #   and S3 for logging, retrieve SSL cert from ACM
 #   ?? security groups, dns
 #
+# AWS provider 1.6 had some breaking changes. This supports 1.6
+#
 # https://www.terraform.io/docs/providers/aws/r/lb.html
 # https://www.terraform.io/docs/providers/aws/r/lb_listener.html
 # https://www.terraform.io/docs/providers/aws/r/lb_listener_rule.html
@@ -13,6 +15,12 @@
 # Only support TCP, HTTP, or HTTPS for now. Not both HTTP and HTTPS in single call?
 # TODO Future:
 #   Multiple LBs ?
+
+module "enable_logging" {
+  source  = "devops-workflow/boolean/local"
+  version = "0.1.0"
+  value   = "${var.enable_logging}"
+}
 
 module "enabled" {
   source  = "devops-workflow/boolean/local"
@@ -76,7 +84,7 @@ resource "aws_lb" "this" {
   access_logs {
     bucket  = "${var.log_bucket_name}"
     prefix  = "${var.log_location_prefix}"
-    enabled = "${var.enable_logging}"
+    enabled = "${module.enable_logging.value}"
   }
   */
   /*
@@ -96,7 +104,10 @@ resource "aws_lb" "this" {
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
-  count  = "${module.enabled.value && var.create_log_bucket ? 1 : 0}"
+  count  = "${
+    module.enabled.value &&
+    module.enable_logging.value &&
+    var.create_log_bucket ? 1 : 0}"
   statement {
     sid = "AllowToPutLoadBalancerLogsToS3Bucket"
     actions = [
@@ -113,7 +124,10 @@ data "aws_iam_policy_document" "bucket_policy" {
 }
 
 resource "aws_s3_bucket" "log_bucket" {
-  count         = "${module.enabled.value && var.create_log_bucket ? 1 : 0}"
+  count         = "${
+    module.enabled.value &&
+    module.enable_logging.value &&
+    var.create_log_bucket ? 1 : 0}"
   bucket        = "${var.log_bucket_name}"
   #acl
   policy        = "${var.bucket_policy == "" ? data.aws_iam_policy_document.bucket_policy.json : var.bucket_policy}"
@@ -241,7 +255,6 @@ resource "aws_lb_target_group" "network" {
   health_check {
     interval            = "${var.health_check_interval}"
     port                = "${var.health_check_port}"
-    #path                = "/"
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     protocol            = "${var.health_check_protocol}"
