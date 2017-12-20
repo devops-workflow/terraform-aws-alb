@@ -3,7 +3,8 @@
 #   and S3 for logging, retrieve SSL cert from ACM
 #   ?? security groups, dns
 #
-# AWS provider 1.6 had some breaking changes. This supports 1.6
+# AWS provider 1.6 has bugs that prevent NLBs management. Issue #2708
+# Currently supporting 1.5.0
 #
 # https://www.terraform.io/docs/providers/aws/r/lb.html
 # https://www.terraform.io/docs/providers/aws/r/lb_listener.html
@@ -269,11 +270,14 @@ resource "aws_lb_target_group" "network" {
   #deregistration_delay  = "${}"
   #target_type           = "${}"
   health_check {
-    interval            = "${var.health_check_interval}"
+    interval            = "10" # only 10, 30 valid. Cannot be changed after creation
     port                = "${var.health_check_port}"
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     protocol            = "${var.health_check_protocol}"
+    timeout             = "6"
+    path                = "/"
+    matcher             = "200-399"
   }
   tags     = "${module.label.tags}"
 }
