@@ -12,7 +12,6 @@
 # https://www.terraform.io/docs/providers/aws/r/lb_target_group_attachment.html
 # https://www.terraform.io/docs/providers/aws/d/acm_certificate.html
 #
-# Only support TCP, HTTP, or HTTPS for now. Not both HTTP and HTTPS in single call?
 # TODO Future:
 #   Multiple LBs ?
 
@@ -118,43 +117,6 @@ resource "aws_lb" "network" {
   */
 }
 
-/*
-resource "aws_lb" "this" {
-  count               = "${module.enabled.value}"
-  name                = "${module.label.id_32}"
-  internal            = "${var.internal}"
-  load_balancer_type  = "${var.type}"
-  #enable_deletion_protection = "${}"
-  idle_timeout        = "${var.idle_timeout}"
-  #ip_address_type     = "${}"
-  # TODO: not supported for `network`
-  #security_groups     = ["${var.security_groups}"]
-  subnets             = ["${var.subnets}"]
-  tags                = "${module.label.tags}"
-  /* Not supported for `network`
-  access_logs {
-    bucket  = "${var.log_bucket_name}"
-    prefix  = "${var.log_location_prefix}"
-    enabled = "${module.enable_logging.value}"
-  }
-  */
-  /*
-  subnet_mapping {
-    subnet_id     = "${}"
-    allocation_id = "${}"
-  }
-  */
-  /*
-  timeouts {
-    create  =
-    delete  =
-    update  =
-  }
-  *//*
-  depends_on = ["aws_s3_bucket.log_bucket"]
-}
-*/
-
 data "aws_iam_policy_document" "bucket_policy" {
   count  = "${
     module.enabled.value &&
@@ -223,8 +185,7 @@ locals {
   #all_app_ports = "${concat(var.http_instance_ports, var.https_instance_ports)}"
 }
 */
-# TODO: Support creating multiple
-#   change to 1 resource with list of maps (port, proto?) to create
+
 resource "aws_lb_target_group" "application-http" {
   count    = "${
     module.enabled.value &&
@@ -258,19 +219,19 @@ resource "aws_lb_target_group" "application-http" {
   }
   tags     = "${module.label.tags}"
 }
+
 resource "aws_lb_target_group" "application-https" {
   count    = "${
     module.enabled.value &&
     var.type == "application" &&
     contains(var.lb_protocols, "HTTPS")
-    ? length(compact(split(",", local.instance_https_ports))) : 0}"  # "${length(local.all_ports)}"
+    ? length(compact(split(",", local.instance_https_ports))) : 0}"
   name     = "${join("-",
     list(substr(module.label.id_org,0,26 <= length(module.label.id_org) ? 26 : length(module.label.id_org))),
     list(element(compact(split(",",local.instance_https_ports)), count.index))
     )}"
   port     = "${element(compact(split(",",local.instance_https_ports)), count.index)}"
   protocol = "HTTP"
-  # count.index <= length(var.http_instance_ports) ? "HTTP" : "HTTPS"
   vpc_id   = "${var.vpc_id}"
   #deregistration_delay  = "${}"
   #target_type           = "${}"
@@ -292,6 +253,7 @@ resource "aws_lb_target_group" "application-https" {
   }
   tags     = "${module.label.tags}"
 }
+
 resource "aws_lb_target_group" "network" {
   count    = "${
     module.enabled.value &&
@@ -316,22 +278,16 @@ resource "aws_lb_target_group" "network" {
   tags     = "${module.label.tags}"
 }
 
-# TODO: change to 1 resource with list of maps (port, proto?, target group, ssl) to create
-#   lookup ssl cert arn from ACM
-#   use lb_listener_rule for additional ports
-#   Up to 3 listener types (TCP or (HTTP/HTTPS))
 resource "aws_lb_listener" "http" {
   count             = "${
     module.enabled.value &&
     var.type == "application" &&
     contains(var.lb_protocols, "HTTP")
     ? length(compact(split(",", local.lb_http_ports))) : 0}"
-  #load_balancer_arn = "${aws_lb.this.arn}" # "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
-  load_balancer_arn = "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
+  load_balancer_arn = "${element(concat(aws_lb.application.*.arn, aws_lb.network.*.arn, list("")), 0)}"
   port              = "${element(compact(split(",",local.lb_http_ports)), count.index)}"
   protocol          = "HTTP"
   default_action {
-    #target_group_arn = "${aws_lb_target_group.target_group.id}"
     target_group_arn = "${element(concat(aws_lb_target_group.application-http.*.arn), count.index)}"
     type             = "forward"
   }
@@ -343,14 +299,12 @@ resource "aws_lb_listener" "https" {
     var.type == "application" &&
     contains(var.lb_protocols, "HTTPS")
     ? length(compact(split(",", local.lb_https_ports))) : 0}"
-  #load_balancer_arn = "${aws_lb.this.arn}" # "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
-  load_balancer_arn = "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
+  load_balancer_arn = "${element(concat(aws_lb.application.*.arn, aws_lb.network.*.arn, list("")), 0)}"
   port              = "${element(compact(split(",",local.lb_https_ports)), count.index)}"
   protocol          = "HTTPS"
   certificate_arn   = "${element(concat(data.aws_acm_certificate.this.*.arn, list("")), 0)}"
   ssl_policy        = "${var.security_policy}"
   default_action {
-    #target_group_arn = "${aws_lb_target_group.target_group.id}"
     target_group_arn = "${element(concat(aws_lb_target_group.application-https.*.arn), count.index)}"
     type             = "forward"
   }
@@ -361,8 +315,7 @@ resource "aws_lb_listener" "network" {
     module.enabled.value &&
     var.type == "network"
     ? length(compact(split(",", local.lb_tcp_ports))) : 0}"
-  #load_balancer_arn = "${aws_lb.this.arn}" # "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
-  load_balancer_arn = "${coalesce(aws_lb.application.arn, aws_lb.network.arn)}"
+  load_balancer_arn = "${element(concat(aws_lb.application.*.arn, aws_lb.network.*.arn, list("")), 0)}"
   port              = "${element(compact(split(",",local.lb_tcp_ports)), count.index)}"
   protocol          = "TCP"
   default_action {
