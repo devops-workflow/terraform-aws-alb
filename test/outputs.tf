@@ -84,8 +84,22 @@ output "target_group_arns" {
   description = "ARNs of all the target groups. Useful for passing to your Auto Scaling group module."
   value       = "${module.lb.target_group_arns}"
 }
-
-# id
+output "target_group_http_ids" {
+  description = "IDs of the HTTP target groups"
+  value       = "${module.lb.target_group_http_ids}"
+}
+output "target_group_https_ids" {
+  description = "IDs of the HTTPS target groups"
+  value       = "${module.lb.target_group_https_ids}"
+}
+output "target_group_tcp_ids" {
+  description = "IDs of the TCP target groups"
+  value       = "${module.lb.target_group_tcp_ids}"
+}
+output "target_group_ids" {
+  description = "IDs of all the target groups"
+  value       = "${module.lb.target_group_ids}"
+}
 # arn_suffix
 # name
 

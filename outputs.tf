@@ -80,7 +80,23 @@ output "target_group_arns" {
   value       = "${compact(concat(aws_lb_target_group.application-http.*.arn,aws_lb_target_group.application-https.*.arn,aws_lb_target_group.network.*.arn))}"
 }
 
-# id
+output "target_group_http_ids" {
+  description = "IDs of the HTTP target groups"
+  value       = "${aws_lb_target_group.application-http.*.id}"
+}
+output "target_group_https_ids" {
+  description = "IDs of the HTTPS target groups"
+  value       = "${aws_lb_target_group.application-https.*.id}"
+}
+output "target_group_tcp_ids" {
+  description = "IDs of the TCP target groups"
+  value       = "${aws_lb_target_group.network.*.id}"
+}
+output "target_group_ids" {
+  description = "IDs of all the target groups"
+  value       = "${compact(concat(aws_lb_target_group.application-http.*.id,aws_lb_target_group.application-https.*.id,aws_lb_target_group.network.*.id))}"
+}
+
 # arn_suffix
 # name
 
