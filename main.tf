@@ -41,6 +41,8 @@ module "label" {
   tags          = "${var.tags}"
 }
 
+# TODO: need to support from var both basename and a complete name
+#       may have 1 log bucket for many apps
 module "log_bucket" {
   source        = "devops-workflow/label/local"
   version       = "0.1.2"

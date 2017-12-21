@@ -19,9 +19,9 @@ data "aws_subnet_ids" "private_subnet_ids" {
 
 # TODO: setup at least 3 LB: NLB, ALB w/o logs, ALB w/ logs
 #   update outputs for all 3
-module "lb" {
+module "lb-tcp" {
   source              = "../"
-  name                = "lb-svc"
+  name                = "lb-tcp"
   environment         = "one"
   organization        = "wiser"
   #attributes      = ["role", "policy", "use", ""]
@@ -30,7 +30,7 @@ module "lb" {
   #health_check_path   = ""
   security_groups     = ["sg-a5bf1cd8"]  # Need at least 1
   lb_protocols        = ["HTTP","HTTPS"]
-  #type                = "network"
+  type                = "network"
   subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
   vpc_id              = "${data.aws_vpc.vpc.id}"
   ports                 = "3000,4000"
@@ -40,20 +40,51 @@ module "lb" {
   lb_http_ports         = "80,8080"
   lb_https_ports        = "443"
   lb_tcp_ports          = ""
-
 }
-
-/* Example for replacing existing module
-module "lb-http-service" {
-  source                = "../"
-  name                  = "${var.stack}"
-  subnets               = "${module.aws_env.private_subnet_ids}"
-  vpc_id                = "${module.aws_env.vpc_id}"
-  security_groups       = "${compact(split(",", "${join(",", var.additional_sg_ids)},${module.sg.sg_id}" ))}"
-  ports                 = "${join(",", list(var.port), var.additional_ports)}"
-  type                  = "${var.lb_type}"
-  lb_protocols          = ["${var.lb_type == "application" ? "HTTP" : "TCP"}"]
-  health_check_path     = "${var.healthcheck_path}"
-  health_check_protocol = "${var.healthcheck_protocol}"
+module "lb-http" {
+  source              = "../"
+  name                = "lb-http"
+  environment         = "one"
+  organization        = "wiser"
+  #attributes      = ["role", "policy", "use", ""]
+  #tags            = "${map("Key", "Value")}"
+  #enabled             = false
+  #health_check_path   = ""
+  security_groups     = ["sg-a5bf1cd8"]  # Need at least 1
+  lb_protocols        = ["HTTP"]
+  #type                = "network"
+  subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
+  vpc_id              = "${data.aws_vpc.vpc.id}"
+  ports                 = "3000,4000"
+  instance_http_ports   = "80,8080"
+  instance_https_ports  = ""
+  instance_tcp_ports    = ""
+  lb_http_ports         = "80,8080"
+  lb_https_ports        = ""
+  lb_tcp_ports          = ""
 }
-*/
+module "lb-https" {
+  source              = "../"
+  name                = "lb-https"
+  environment         = "one"
+  organization        = "wiser"
+  #attributes      = ["role", "policy", "use", ""]
+  #tags            = "${map("Key", "Value")}"
+  #enabled             = false
+  #health_check_path   = ""
+  internal            = false # PUBLIC
+  #security_groups     = ["sg-a5bf1cd8"]  # Need at least 1
+  security_groups     = ["sg-422c923e"] #  PUBLIC -> use whitelist SG
+  lb_protocols        = ["HTTPS"]
+  #type                = "network"
+  #subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
+  subnets             = "${data.aws_subnet_ids.public_subnet_ids.ids}" # PUBLIC -> use public subnets
+  vpc_id              = "${data.aws_vpc.vpc.id}"
+  ports                 = "3000,4000"
+  instance_http_ports   = ""
+  instance_https_ports  = "443,8443"
+  instance_tcp_ports    = ""
+  lb_http_ports         = ""
+  lb_https_ports        = "443,8443"
+  lb_tcp_ports          = ""
+}
