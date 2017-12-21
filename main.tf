@@ -41,6 +41,19 @@ module "label" {
   tags          = "${var.tags}"
 }
 
+module "log_bucket" {
+  source        = "devops-workflow/label/local"
+  version       = "0.1.0"
+  organization  = "${var.organization}"
+  name          = "${var.log_bucket_name}"
+  namespace-env = true
+  namespace-org = true
+  environment   = "${var.environment}"
+  delimiter     = "${var.delimiter}"
+  attributes    = "${var.attributes}"
+  tags          = "${var.tags}"
+}
+
 /*
 # Retrieve SSL certificate if creating SSL LB
 Support list for multiple certs ?? First pass, only 1 LB, 1 DNS, 1 cert
@@ -73,7 +86,7 @@ resource "aws_lb" "application" {
   subnets             = ["${var.subnets}"]
   tags                = "${module.label.tags}"
   access_logs {
-    bucket  = "${var.log_bucket_name}"
+    bucket  = "${module.log_bucket.id}"  # ? Cannot be empty ?
     prefix  = "${var.log_location_prefix}"
     enabled = "${module.enable_logging.value}"
   }
@@ -130,7 +143,7 @@ data "aws_iam_policy_document" "bucket_policy" {
       "s3:PutObject",
     ]
     resources = [
-      "arn:aws:s3:::${var.log_bucket_name}/${var.log_location_prefix}/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
+      "arn:aws:s3:::${module.log_bucket.id}/${var.log_location_prefix}/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
     ]
     principals {
       type        = "AWS"
@@ -145,7 +158,7 @@ resource "aws_s3_bucket" "log_bucket" {
     module.enable_logging.value &&
     var.type == "application" &&
     var.create_log_bucket ? 1 : 0}"
-  bucket        = "${var.log_bucket_name}"
+  bucket        = "${module.log_bucket.id}"
   #acl
   policy        = "${var.bucket_policy == "" ? data.aws_iam_policy_document.bucket_policy.json : var.bucket_policy}"
   force_destroy = "${var.force_destroy_log_bucket}"
