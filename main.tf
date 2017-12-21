@@ -30,7 +30,7 @@ module "enabled" {
 
 module "label" {
   source        = "devops-workflow/label/local"
-  version       = "0.1.0"
+  version       = "0.1.2"
   organization  = "${var.organization}"
   name          = "${var.name}"
   namespace-env = "${var.namespace-env}"
@@ -43,7 +43,7 @@ module "label" {
 
 module "log_bucket" {
   source        = "devops-workflow/label/local"
-  version       = "0.1.0"
+  version       = "0.1.2"
   organization  = "${var.organization}"
   name          = "${var.log_bucket_name}"
   namespace-env = true
