@@ -74,6 +74,7 @@ data "aws_acm_certificate" "this" {
   domain  = "${var.certificate_name != "" ? var.certificate_name : local.cert_name }"
 }
 
+# May need to create 2: 1 w/ logs and 1 w/o logs
 resource "aws_lb" "application" {
   count               = "${module.enabled.value && var.type == "application" ? 1 : 0}"
   name                = "${module.label.id_32}"
