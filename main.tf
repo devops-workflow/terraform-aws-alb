@@ -85,11 +85,13 @@ resource "aws_lb" "application" {
   security_groups     = ["${var.security_groups}"]
   subnets             = ["${var.subnets}"]
   tags                = "${module.label.tags}"
+  /* Doesn't seem to be able to disable properly
   access_logs {
-    bucket  = "${module.log_bucket.id}"  # ? Cannot be empty ?
+    bucket  = "${module.log_bucket.id}"  # ? Cannot be empty and must exist
     prefix  = "${var.log_location_prefix}"
     enabled = "${module.enable_logging.value}"
   }
+  */
   /*
   subnet_mapping {
     subnet_id     = "${}"

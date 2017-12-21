@@ -3,6 +3,7 @@ data "aws_vpc" "vpc" {
     Env = "one"
   }
 }
+# Look up security group
 data "aws_subnet_ids" "public_subnet_ids" {
   vpc_id = "${data.aws_vpc.vpc.id}"
   tags {
@@ -16,6 +17,8 @@ data "aws_subnet_ids" "private_subnet_ids" {
   }
 }
 
+# TODO: setup at least 3 LB: NLB, ALB w/o logs, ALB w/ logs
+#   update outputs for all 3
 module "lb" {
   source              = "../"
   name                = "lb-svc"
@@ -25,9 +28,9 @@ module "lb" {
   #tags            = "${map("Key", "Value")}"
   #enabled             = false
   #health_check_path   = ""
-  security_groups     = []
+  security_groups     = ["sg-a5bf1cd8"]  # Need at least 1
   lb_protocols        = ["HTTP","HTTPS"]
-  type                = "network"
+  #type                = "network"
   subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
   vpc_id              = "${data.aws_vpc.vpc.id}"
   ports                 = "3000,4000"
