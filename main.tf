@@ -271,6 +271,9 @@ resource "aws_lb_target_group" "application-https" {
     enabled         = "${var.cookie_duration > 0 ? true : false}"
   }
   tags     = "${module.label.tags}"
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_lb_target_group" "network" {
