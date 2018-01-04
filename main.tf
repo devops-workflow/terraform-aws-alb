@@ -237,6 +237,9 @@ resource "aws_lb_target_group" "application-http" {
     enabled         = "${var.cookie_duration > 0 ? true : false}"
   }
   tags     = "${module.label.tags}"
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_lb_target_group" "application-https" {
@@ -301,6 +304,9 @@ resource "aws_lb_target_group" "network" {
     matcher             = "200-399"
   }
   tags     = "${module.label.tags}"
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_lb_listener" "http" {
