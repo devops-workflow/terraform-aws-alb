@@ -299,8 +299,8 @@ resource "aws_lb_target_group" "network" {
     healthy_threshold   = "${var.health_check_healthy_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     protocol            = "${var.health_check_protocol}"
-    timeout             = "6"
-    path                = "/"
+    timeout             = "6" # "${var.health_check_timeout}"
+    path                = "${var.health_check_path}"
     matcher             = "200-399"
   }
   tags     = "${module.label.tags}"

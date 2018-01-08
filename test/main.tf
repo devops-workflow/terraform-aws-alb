@@ -27,8 +27,9 @@ module "lb-tcp" {
   #attributes      = ["role", "policy", "use", ""]
   #tags            = "${map("Key", "Value")}"
   #enabled             = false
-  #health_check_path   = ""
-  security_groups     = ["sg-a5bf1cd8"]  # Need at least 1
+  health_check_path   = "/healthcheck"
+  health_check_port   = "3199"
+  security_groups     = ["sg-bef0a5c2"]  # Need at least 1
   lb_protocols        = ["HTTP","HTTPS"]
   type                = "network"
   subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
@@ -50,7 +51,7 @@ module "lb-http" {
   #tags            = "${map("Key", "Value")}"
   #enabled             = false
   #health_check_path   = ""
-  security_groups     = ["sg-a5bf1cd8"]  # Need at least 1
+  security_groups     = ["sg-bef0a5c2"]  # Need at least 1
   lb_protocols        = ["HTTP"]
   #type                = "network"
   subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
@@ -74,7 +75,7 @@ module "lb-https" {
   #health_check_path   = ""
   internal            = false # PUBLIC
   #security_groups     = ["sg-a5bf1cd8"]  # Need at least 1
-  security_groups     = ["sg-422c923e"] #  PUBLIC -> use whitelist SG
+  security_groups     = ["sg-bef0a5c2"] #  PUBLIC -> use whitelist SG
   lb_protocols        = ["HTTPS"]
   #type                = "network"
   #subnets             = "${data.aws_subnet_ids.private_subnet_ids.ids}"
