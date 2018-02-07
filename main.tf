@@ -253,7 +253,7 @@ resource "aws_lb_target_group" "application-https" {
     list(element(compact(split(",",local.instance_https_ports)), count.index))
     )}"
   port     = "${element(compact(split(",",local.instance_https_ports)), count.index)}"
-  protocol = "HTTP"
+  protocol = "HTTPS"
   vpc_id   = "${var.vpc_id}"
   #deregistration_delay  = "${}"
   #target_type           = "${}"
