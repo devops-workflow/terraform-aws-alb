@@ -309,7 +309,6 @@ resource "aws_lb_target_group" "network" {
     protocol            = "${var.health_check_protocol}"
     timeout             = "6" # "${var.health_check_timeout}"
     path                = "${var.health_check_path}"
-    matcher             = "200-399"
   }
   tags     = "${module.label.tags}"
   lifecycle {
