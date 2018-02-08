@@ -308,7 +308,6 @@ resource "aws_lb_target_group" "network" {
     unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
     protocol            = "${var.health_check_protocol}"
     timeout             = "6" # "${var.health_check_timeout}"
-    path                = "${var.health_check_path}"
   }
   tags     = "${module.label.tags}"
   lifecycle {
