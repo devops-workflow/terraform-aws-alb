@@ -309,6 +309,7 @@ resource "aws_lb_target_group" "network" {
     protocol            = "${var.health_check_protocol}"
     timeout             = "6" # "${var.health_check_timeout}"
   }
+  stickiness = []
   tags     = "${module.label.tags}"
   lifecycle {
     create_before_destroy = true
