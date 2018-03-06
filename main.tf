@@ -76,6 +76,7 @@ data "aws_acm_certificate" "this" {
     ? 1 : 0}"
 
   domain = "${var.certificate_name != "" ? var.certificate_name : local.cert_name }"
+
   #statuses = ["ISSUED"]
 }
 
@@ -316,9 +317,9 @@ resource "aws_lb_target_group" "network" {
     list(element(compact(split(",",local.instance_tcp_ports)), count.index))
     )}"
 
-  port     = "${element(compact(split(",",local.instance_tcp_ports)), count.index)}"
-  protocol = "TCP"
-  vpc_id   = "${var.vpc_id}"
+  port       = "${element(compact(split(",",local.instance_tcp_ports)), count.index)}"
+  protocol   = "TCP"
+  vpc_id     = "${var.vpc_id}"
   stickiness = []
 
   #deregistration_delay  = "${}"
@@ -408,3 +409,4 @@ resource "aws_lb_listener_rule" "this" {
   }
 }
 */
+
