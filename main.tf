@@ -76,6 +76,7 @@ data "aws_acm_certificate" "this" {
     ? 1 : 0}"
 
   domain = "${var.certificate_name != "" ? var.certificate_name : local.cert_name }"
+  #statuses = ["ISSUED"]
 }
 
 # May need to create 2: 1 w/ logs and 1 w/o logs
@@ -318,6 +319,7 @@ resource "aws_lb_target_group" "network" {
   port     = "${element(compact(split(",",local.instance_tcp_ports)), count.index)}"
   protocol = "TCP"
   vpc_id   = "${var.vpc_id}"
+  stickiness = []
 
   #deregistration_delay  = "${}"
   #target_type           = "${}"
@@ -406,4 +408,3 @@ resource "aws_lb_listener_rule" "this" {
   }
 }
 */
-
