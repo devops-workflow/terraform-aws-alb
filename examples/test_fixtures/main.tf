@@ -39,13 +39,13 @@ module "security-group" {
 
 module "lb" {
   source                   = "../.."
-  lb_name                 = "my-lb"
-  lb_security_groups      = ["${module.security-group.this_security_group_id}"]
+  lb_name                  = "my-lb"
+  lb_security_groups       = ["${module.security-group.this_security_group_id}"]
   region                   = "${var.region}"
   vpc_id                   = "${module.vpc.vpc_id}"
   subnets                  = "${module.vpc.public_subnets}"
   certificate_arn          = "${aws_iam_server_certificate.fixture_cert.arn}"
-  lb_protocols            = ["HTTPS"]
+  lb_protocols             = ["HTTPS"]
   health_check_path        = "/"
   create_log_bucket        = true
   enable_logging           = true
