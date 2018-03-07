@@ -34,19 +34,47 @@ module "lb-tcp" {
   #enabled             = false
   health_check_path = "/healthcheck"
 
-  health_check_port    = "3199"
-  security_groups      = ["sg-bef0a5c2"]                                 # Need at least 1
-  lb_protocols         = ["HTTP", "HTTPS"]
-  type                 = "network"
-  subnets              = "${data.aws_subnet_ids.private_subnet_ids.ids}"
-  vpc_id               = "${data.aws_vpc.vpc.id}"
-  ports                = "3000,4000"
-  instance_http_ports  = "80,8080"
-  instance_https_ports = "443"
-  instance_tcp_ports   = ""
-  lb_http_ports        = "80,8080"
-  lb_https_ports       = "443"
-  lb_tcp_ports         = ""
+  health_check_protocol = "HTTP"
+  health_check_port     = "3199"
+  security_groups       = ["sg-bef0a5c2"]                                 # Need at least 1
+  lb_protocols          = ["HTTP", "HTTPS"]
+  type                  = "network"
+  subnets               = "${data.aws_subnet_ids.private_subnet_ids.ids}"
+  vpc_id                = "${data.aws_vpc.vpc.id}"
+  ports                 = "3000,4000"
+  instance_http_ports   = "80,8080"
+  instance_https_ports  = "443"
+  instance_tcp_ports    = ""
+  lb_http_ports         = "80,8080"
+  lb_https_ports        = "443"
+  lb_tcp_ports          = ""
+}
+
+module "lb-tcp-tcp" {
+  source       = "../"
+  name         = "lb-tcp-tcp"
+  environment  = "one"
+  organization = "wiser"
+
+  #attributes      = ["role", "policy", "use", ""]
+  #tags            = "${map("Key", "Value")}"
+  #enabled             = false
+  health_check_path = "/healthcheck"
+
+  health_check_protocol = "TCP"
+  health_check_port     = "3199"
+  security_groups       = ["sg-bef0a5c2"]                                 # Need at least 1
+  lb_protocols          = ["HTTP", "HTTPS"]
+  type                  = "network"
+  subnets               = "${data.aws_subnet_ids.private_subnet_ids.ids}"
+  vpc_id                = "${data.aws_vpc.vpc.id}"
+  ports                 = "3000,4000"
+  instance_http_ports   = "80,8080"
+  instance_https_ports  = "443"
+  instance_tcp_ports    = ""
+  lb_http_ports         = "80,8080"
+  lb_https_ports        = "443"
+  lb_tcp_ports          = ""
 }
 
 module "lb-http" {

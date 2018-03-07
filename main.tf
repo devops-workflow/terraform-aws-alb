@@ -306,6 +306,31 @@ resource "aws_lb_target_group" "application-https" {
   }
 }
 
+# Build NLB Target Group health check stansa
+locals {
+  health_base = {
+    interval            = "10"
+    port                = "${var.health_check_port}"
+    healthy_threshold   = "${var.health_check_healthy_threshold}"
+    unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
+    protocol            = "${var.health_check_protocol}"
+  }
+
+  http = {
+    path    = "${var.health_check_path}"
+    matcher = "200-399"
+    timeout = "6"
+  }
+
+  h_keys      = "${join(",", keys(local.health_base))}"
+  h_vals      = "${join(",", values(local.health_base))}"
+  http_keys   = "${join(",", keys(local.http))}"
+  http_vals   = "${join(",", values(local.http))}"
+  keys        = "${ var.health_check_protocol == "TCP" ? local.h_keys : "${local.h_keys},${local.http_keys}" }"
+  vals        = "${ var.health_check_protocol == "TCP" ? local.h_vals : "${local.h_vals},${local.http_vals}" }"
+  healthcheck = "${zipmap(split(",", local.keys), split(",", local.vals))}"
+}
+
 resource "aws_lb_target_group" "network" {
   count = "${
     module.enabled.value &&
@@ -317,25 +342,15 @@ resource "aws_lb_target_group" "network" {
     list(element(compact(split(",",local.instance_tcp_ports)), count.index))
     )}"
 
-  port       = "${element(compact(split(",",local.instance_tcp_ports)), count.index)}"
-  protocol   = "TCP"
-  vpc_id     = "${var.vpc_id}"
-  stickiness = []
+  health_check = "${list(local.healthcheck)}"
+  port         = "${element(compact(split(",",local.instance_tcp_ports)), count.index)}"
+  protocol     = "TCP"
+  stickiness   = []
+  tags         = "${module.label.tags}"
+  vpc_id       = "${var.vpc_id}"
 
   #deregistration_delay  = "${}"
   #target_type           = "${}"
-  health_check {
-    interval            = "10"                                      # only 10, 30 valid. Cannot be changed after creation
-    port                = "${var.health_check_port}"
-    healthy_threshold   = "${var.health_check_healthy_threshold}"
-    unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
-    protocol            = "${var.health_check_protocol}"
-    timeout             = "6"                                       # "${var.health_check_timeout}"
-    path                = "${var.health_check_path}"
-    matcher             = "200-399"
-  }
-
-  tags = "${module.label.tags}"
 
   lifecycle {
     create_before_destroy = true

@@ -188,7 +188,9 @@ variable "health_check_interval" {
 
 variable "health_check_matcher" {
   description = "The HTTP codes that are a success when checking TG health."
-  default     = "200-299"                                                    # AWS default is 200-399
+  default     = "200-299"
+
+  # AWS default is 200-399
 }
 
 variable "health_check_path" {

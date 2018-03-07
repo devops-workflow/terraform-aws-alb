@@ -1,6 +1,5 @@
 provider "aws" {
-  region  = "${var.region}"
-  version = "1.5"
+  region = "${var.region}"
 
-  # Can not upgrade until bugs introduced in 1.6 are fixed
+  #version = "1.5"
 }
