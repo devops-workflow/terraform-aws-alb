@@ -7,8 +7,8 @@ Balancer (ALB/NLB). Available through the [terraform registry](https://registry.
 
 | Branch | Build status |
 | --- | --- |
-| master | [![CircleCI](https://circleci.com/gh/devops-workflow/terraform-aws-alb.svg?style=svg)](https://circleci.com/gh/devops-workflow/terraform-aws-alb) |
-| master | [![TravisCI](https://travis-ci.org/terraform-aws-modules/terraform-aws-alb.svg?branch=master)](https://travis-ci.org/terraform-aws-modules/terraform-aws-alb) |
+| master | [![CircleCI](https://circleci.com/gh/devops-workflow/terraform-aws-lb.svg?style=svg)](https://circleci.com/gh/devops-workflow/terraform-aws-lb) |
+| master (upstream) | [![TravisCI](https://travis-ci.org/terraform-aws-modules/terraform-aws-alb.svg?branch=master)](https://travis-ci.org/terraform-aws-modules/terraform-aws-alb) |
 
 ## Assumptions
 * You want to create a set of resources for the ALB: namely an associated target group and listener.

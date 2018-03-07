@@ -20,23 +20,26 @@ module "enable_logging" {
   #source  = "devops-workflow/boolean/local"
   #version = "0.1.0"
   #source  = "git::https://github.com/WisePricer/terraform-local-boolean.git?ref=tags/v0.1.1"
-  source  = "git::https://github.com/WisePricer/terraform-local-boolean.git"
-  value   = "${var.enable_logging}"
+  source = "git::https://github.com/WisePricer/terraform-local-boolean.git"
+
+  value = "${var.enable_logging}"
 }
 
 module "enabled" {
   #source  = "devops-workflow/boolean/local"
   #version = "0.1.0"
   #source  = "git::https://github.com/WisePricer/terraform-local-boolean.git?ref=tags/v0.1.1"
-  source  = "git::https://github.com/WisePricer/terraform-local-boolean.git"
-  value   = "${var.enabled}"
+  source = "git::https://github.com/WisePricer/terraform-local-boolean.git"
+
+  value = "${var.enabled}"
 }
 
 module "label" {
   #source        = "devops-workflow/label/local"
   #version       = "0.1.2"
   #source        = "git::https://github.com/WisePricer/terraform-local-label.git?ref=tags/v0.1.3"
-  source        = "git::https://github.com/WisePricer/terraform-local-label.git"
+  source = "git::https://github.com/WisePricer/terraform-local-label.git"
+
   organization  = "${var.organization}"
   name          = "${var.name}"
   namespace-env = "${var.namespace-env}"
@@ -53,7 +56,8 @@ module "log_bucket" {
   #source        = "devops-workflow/label/local"
   #version       = "0.1.2"
   #source        = "git::https://github.com/WisePricer/terraform-local-label.git?ref=tags/v0.1.3"
-  source        = "git::https://github.com/WisePricer/terraform-local-label.git"
+  source = "git::https://github.com/WisePricer/terraform-local-label.git"
+
   organization  = "${var.organization}"
   name          = "${var.log_bucket_name}"
   namespace-env = true
