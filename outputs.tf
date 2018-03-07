@@ -3,30 +3,22 @@
 //
 output "arn" {
   description = "ARN of the LB itself. Useful for debug output, for example when attaching a WAF."
-
-  #value       = "${element(concat(aws_lb.this.*.arn, list("")), 0)}"
-  value = "${element(concat(aws_lb.application.*.arn, aws_lb.network.*.arn, list("")), 0)}"
+  value       = "${element(concat(aws_lb.application.*.arn, aws_lb.network.*.arn, list("")), 0)}"
 }
 
 output "dns_name" {
   description = "The DNS name of the LB presumably to be used with a friendlier CNAME."
-
-  #value       = "${element(concat(aws_lb.this.*.dns_name, list("")), 0)}"
-  value = "${element(concat(aws_lb.application.*.dns_name, aws_lb.network.*.dns_name, list("")), 0)}"
+  value       = "${element(concat(aws_lb.application.*.dns_name, aws_lb.network.*.dns_name, list("")), 0)}"
 }
 
 output "id" {
   description = "The ID of the LB we created."
-
-  #value       = "${element(concat(aws_lb.this.*.id, list("")), 0)}"
-  value = "${element(concat(aws_lb.application.*.id, aws_lb.network.*.id, list("")), 0)}"
+  value       = "${element(concat(aws_lb.application.*.id, aws_lb.network.*.id, list("")), 0)}"
 }
 
 output "zone_id" {
   description = "The zone_id of the LB to assist with creating DNS records."
-
-  #value       = "${element(concat(aws_lb.this.*.zone_id, list("")), 0)}"
-  value = "${element(concat(aws_lb.application.*.zone_id, aws_lb.network.*.zone_id, list("")), 0)}"
+  value       = "${element(concat(aws_lb.application.*.zone_id, aws_lb.network.*.zone_id, list("")), 0)}"
 }
 
 # arn_suffix
