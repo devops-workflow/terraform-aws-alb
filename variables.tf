@@ -66,6 +66,21 @@ variable "certificate_name" {
 //
 // Load Balancer settings
 //
+variable "enable_cross_zone_load_balancing" {
+  description = "Enable cross-zone load balancing on NLB"
+  default     = false
+}
+
+variable "enable_deletion_protection" {
+  description = "Enable deletion protection. Prevent LB from being deleted"
+  default     = false
+}
+
+variable "enable_http2" {
+  description = "Enable HTTP/2 on ALB"
+  default     = true
+}
+
 variable "idle_timeout" {
   description = "The time in seconds that the connection is allowed to be idle"
   default     = "60"

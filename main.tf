@@ -17,29 +17,20 @@
 #   Multiple LBs ?
 
 module "enable_logging" {
-  #source  = "devops-workflow/boolean/local"
-  #version = "0.1.0"
-  #source  = "git::https://github.com/WisePricer/terraform-local-boolean.git?ref=tags/v0.1.1"
-  source = "git::https://github.com/WisePricer/terraform-local-boolean.git"
-
-  value = "${var.enable_logging}"
+  source  = "devops-workflow/boolean/local"
+  version = "0.1.1"
+  value   = "${var.enable_logging}"
 }
 
 module "enabled" {
-  #source  = "devops-workflow/boolean/local"
-  #version = "0.1.0"
-  #source  = "git::https://github.com/WisePricer/terraform-local-boolean.git?ref=tags/v0.1.1"
-  source = "git::https://github.com/WisePricer/terraform-local-boolean.git"
-
-  value = "${var.enabled}"
+  source  = "devops-workflow/boolean/local"
+  version = "0.1.1"
+  value   = "${var.enabled}"
 }
 
 module "label" {
-  #source        = "devops-workflow/label/local"
-  #version       = "0.1.2"
-  #source        = "git::https://github.com/WisePricer/terraform-local-label.git?ref=tags/v0.1.3"
-  source = "git::https://github.com/WisePricer/terraform-local-label.git"
-
+  source        = "devops-workflow/label/local"
+  version       = "0.1.3"
   organization  = "${var.organization}"
   name          = "${var.name}"
   namespace-env = "${var.namespace-env}"
@@ -53,11 +44,8 @@ module "label" {
 # TODO: need to support from var both basename and a complete name
 #       may have 1 log bucket for many apps
 module "log_bucket" {
-  #source        = "devops-workflow/label/local"
-  #version       = "0.1.2"
-  #source        = "git::https://github.com/WisePricer/terraform-local-label.git?ref=tags/v0.1.3"
-  source = "git::https://github.com/WisePricer/terraform-local-label.git"
-
+  source        = "devops-workflow/label/local"
+  version       = "0.1.3"
   organization  = "${var.organization}"
   name          = "${var.log_bucket_name}"
   namespace-env = true
@@ -435,4 +423,3 @@ resource "aws_lb_listener_rule" "this" {
   }
 }
 */
-
