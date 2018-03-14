@@ -87,13 +87,14 @@ resource "aws_lb" "application" {
   internal           = "${var.internal}"
   load_balancer_type = "${var.type}"
 
-  #enable_deletion_protection = "${}"
-  idle_timeout = "${var.idle_timeout}"
+  enable_deletion_protection = "${var.enable_deletion_protection}"
+  enable_http2               = "${var.enable_http2}"
+  idle_timeout               = "${var.idle_timeout}"
+  security_groups            = ["${var.security_groups}"]
+  subnets                    = ["${var.subnets}"]
+  tags                       = "${module.label.tags}"
 
   #ip_address_type     = "${}"
-  security_groups = ["${var.security_groups}"]
-  subnets         = ["${var.subnets}"]
-  tags            = "${module.label.tags}"
 
   # Doesn't seem to be able to disable properly
   #  access_logs {
@@ -119,12 +120,13 @@ resource "aws_lb" "network" {
   internal           = "${var.internal}"
   load_balancer_type = "${var.type}"
 
-  #enable_deletion_protection = "${}"
-  idle_timeout = "${var.idle_timeout}"
+  enable_cross_zone_load_balancing = "${var.enable_cross_zone_load_balancing}"
+  enable_deletion_protection       = "${var.enable_deletion_protection}"
+  idle_timeout                     = "${var.idle_timeout}"
+  subnets                          = ["${var.subnets}"]
+  tags                             = "${module.label.tags}"
 
   #ip_address_type     = "${}"
-  subnets = ["${var.subnets}"]
-  tags    = "${module.label.tags}"
 
   /*
   subnet_mapping {
@@ -423,3 +425,4 @@ resource "aws_lb_listener_rule" "this" {
   }
 }
 */
+
