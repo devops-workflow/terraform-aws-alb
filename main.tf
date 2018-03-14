@@ -17,26 +17,20 @@
 #   Multiple LBs ?
 
 module "enable_logging" {
-  #source  = "devops-workflow/boolean/local"
-  #version = "0.1.0"
-  #source  = "git::https://github.com/WisePricer/terraform-local-boolean.git?ref=tags/v0.1.1"
-  source  = "git::https://github.com/WisePricer/terraform-local-boolean.git"
+  source  = "devops-workflow/boolean/local"
+  version = "0.1.1"
   value   = "${var.enable_logging}"
 }
 
 module "enabled" {
-  #source  = "devops-workflow/boolean/local"
-  #version = "0.1.0"
-  #source  = "git::https://github.com/WisePricer/terraform-local-boolean.git?ref=tags/v0.1.1"
-  source  = "git::https://github.com/WisePricer/terraform-local-boolean.git"
+  source  = "devops-workflow/boolean/local"
+  version = "0.1.1"
   value   = "${var.enabled}"
 }
 
 module "label" {
-  #source        = "devops-workflow/label/local"
-  #version       = "0.1.2"
-  #source        = "git::https://github.com/WisePricer/terraform-local-label.git?ref=tags/v0.1.3"
-  source        = "git::https://github.com/WisePricer/terraform-local-label.git"
+  source        = "devops-workflow/label/local"
+  version       = "0.1.3"
   organization  = "${var.organization}"
   name          = "${var.name}"
   namespace-env = "${var.namespace-env}"
@@ -50,10 +44,8 @@ module "label" {
 # TODO: need to support from var both basename and a complete name
 #       may have 1 log bucket for many apps
 module "log_bucket" {
-  #source        = "devops-workflow/label/local"
-  #version       = "0.1.2"
-  #source        = "git::https://github.com/WisePricer/terraform-local-label.git?ref=tags/v0.1.3"
-  source        = "git::https://github.com/WisePricer/terraform-local-label.git"
+  source        = "devops-workflow/label/local"
+  version       = "0.1.3"
   organization  = "${var.organization}"
   name          = "${var.log_bucket_name}"
   namespace-env = true
@@ -95,13 +87,14 @@ resource "aws_lb" "application" {
   internal           = "${var.internal}"
   load_balancer_type = "${var.type}"
 
-  #enable_deletion_protection = "${}"
-  idle_timeout = "${var.idle_timeout}"
+  enable_deletion_protection = "${var.enable_deletion_protection}"
+  enable_http2               = "${var.enable_http2}"
+  idle_timeout               = "${var.idle_timeout}"
+  security_groups            = ["${var.security_groups}"]
+  subnets                    = ["${var.subnets}"]
+  tags                       = "${module.label.tags}"
 
   #ip_address_type     = "${}"
-  security_groups = ["${var.security_groups}"]
-  subnets         = ["${var.subnets}"]
-  tags            = "${module.label.tags}"
 
   # Doesn't seem to be able to disable properly
   #  access_logs {
@@ -127,12 +120,13 @@ resource "aws_lb" "network" {
   internal           = "${var.internal}"
   load_balancer_type = "${var.type}"
 
-  #enable_deletion_protection = "${}"
-  idle_timeout = "${var.idle_timeout}"
+  enable_cross_zone_load_balancing = "${var.enable_cross_zone_load_balancing}"
+  enable_deletion_protection       = "${var.enable_deletion_protection}"
+  idle_timeout                     = "${var.idle_timeout}"
+  subnets                          = ["${var.subnets}"]
+  tags                             = "${module.label.tags}"
 
   #ip_address_type     = "${}"
-  subnets = ["${var.subnets}"]
-  tags    = "${module.label.tags}"
 
   /*
   subnet_mapping {
