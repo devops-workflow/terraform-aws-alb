@@ -80,6 +80,17 @@ data "aws_acm_certificate" "this" {
   #statuses = ["ISSUED"]
 }
 
+data "aws_acm_certificate" "additional" {
+  count = "${
+    module.enabled.value &&
+    var.type == "application" &&
+    contains(var.lb_protocols, "HTTPS")
+    ? length(var.certificate_additional_names) : 0
+  }"
+
+  domain = "${var.certificate_additional_names[count.index]}"
+}
+
 # May need to create 2: 1 w/ logs and 1 w/o logs
 resource "aws_lb" "application" {
   count              = "${module.enabled.value && var.type == "application" ? 1 : 0}"
@@ -392,6 +403,20 @@ resource "aws_lb_listener" "https" {
     target_group_arn = "${element(concat(aws_lb_target_group.application-https.*.arn), count.index)}"
     type             = "forward"
   }
+}
+
+# Additional certs for https listener on first port
+# TODO: figure out way to add to all ports
+#   temp: could add another stansa for second port if >= 2 https ports
+resource "aws_lb_listener_certificate" "https" {
+  count = "${
+    module.enabled.value &&
+    var.type == "application" &&
+    contains(var.lb_protocols, "HTTPS")
+    ? length(var.certificate_additional_names) : 0 }"
+
+  listener_arn    = "${element(aws_lb_listener.https.*.arn, 0)}"
+  certificate_arn = "${element(data.aws_acm_certificate.additional.*.arn, count.index)}"
 }
 
 resource "aws_lb_listener" "network" {
