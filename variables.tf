@@ -100,6 +100,7 @@ variable "internal" {
 variable "security_groups" {
   description = "The security groups with which we associate the LB. e.g. [\"sg-edcd9784\",\"sg-edcd9785\"]"
   type        = "list"
+  default     = []
 }
 
 variable "subnets" {
