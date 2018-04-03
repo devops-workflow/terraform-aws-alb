@@ -58,8 +58,14 @@ variable "enable_logging" {
   default     = false
 }
 
+variable "certificate_additional_names" {
+  description = "List of additional names of SSL Certificates to look up in ACM and use"
+  type        = "list"
+  default     = []
+}
+
 variable "certificate_name" {
-  description = "The name of the SSL Certificate to look up in ACM and use"
+  description = "The name of the default SSL Certificate to look up in ACM and use"
   default     = ""
 }
 
@@ -94,6 +100,7 @@ variable "internal" {
 variable "security_groups" {
   description = "The security groups with which we associate the LB. e.g. [\"sg-edcd9784\",\"sg-edcd9785\"]"
   type        = "list"
+  default     = []
 }
 
 variable "subnets" {
