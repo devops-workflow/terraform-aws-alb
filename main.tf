@@ -30,7 +30,7 @@ module "enabled" {
 
 module "label" {
   source        = "devops-workflow/label/local"
-  version       = "0.2.0"
+  version       = "0.2.1"
   attributes    = "${var.attributes}"
   component     = "${var.component}"
   delimiter     = "${var.delimiter}"
@@ -51,7 +51,7 @@ module "label" {
 #       may have 1 log bucket for many apps
 module "log_bucket" {
   source        = "devops-workflow/label/local"
-  version       = "0.2.0"
+  version       = "0.2.1"
   attributes    = "${var.attributes}"
   component     = "${var.component}"
   delimiter     = "${var.delimiter}"
@@ -462,4 +462,3 @@ resource "aws_lb_listener_rule" "this" {
   }
 }
 */
-
