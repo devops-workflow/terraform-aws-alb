@@ -6,6 +6,11 @@ output "arn" {
   value       = "${element(concat(aws_lb.application.*.arn, aws_lb.network.*.arn, list("")), 0)}"
 }
 
+output "arn_suffix" {
+  description = "ARN suffix of the LB itself. Useful for debug output, for example when attaching a WAF."
+  value       = "${element(concat(aws_lb.application.*.arn_suffix, aws_lb.network.*.arn_suffix, list("")), 0)}"
+}
+
 output "dns_name" {
   description = "The DNS name of the LB presumably to be used with a friendlier CNAME."
   value       = "${element(concat(aws_lb.application.*.dns_name, aws_lb.network.*.dns_name, list("")), 0)}"
@@ -88,6 +93,11 @@ output "target_group_tcp_arns" {
 output "target_group_arns" {
   description = "ARNs of all the target groups. Useful for passing to your Auto Scaling group module."
   value       = "${compact(concat(aws_lb_target_group.application-http.*.arn,aws_lb_target_group.application-https.*.arn,aws_lb_target_group.network.*.arn))}"
+}
+
+output "target_group_arns_suffix" {
+  description = "ARNs suffix of all the target groups. Useful for passing to your Auto Scaling group module."
+  value       = "${compact(concat(aws_lb_target_group.application-http.*.arn_suffix,aws_lb_target_group.application-https.*.arn_suffix,aws_lb_target_group.network.*.arn_suffix))}"
 }
 
 output "target_group_http_ids" {
