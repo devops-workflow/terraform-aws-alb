@@ -257,12 +257,12 @@ resource "aws_lb_target_group" "application-http" {
     list(element(compact(split(",",local.instance_http_ports)), count.index))
     )}"
 
-  port     = "${element(compact(split(",",local.instance_http_ports)), count.index)}"
-  protocol = "HTTP"
-  vpc_id   = "${var.vpc_id}"
+  port        = "${element(compact(split(",",local.instance_http_ports)), count.index)}"
+  protocol    = "HTTP"
+  target_type = "${var.target_type}"
+  vpc_id      = "${var.vpc_id}"
 
   #deregistration_delay  = "${}"
-  #target_type           = "${}"
   health_check {
     interval            = "${var.health_check_interval}"
     path                = "${var.health_check_path}"
@@ -300,12 +300,12 @@ resource "aws_lb_target_group" "application-https" {
     list(element(compact(split(",",local.instance_https_ports)), count.index))
     )}"
 
-  port     = "${element(compact(split(",",local.instance_https_ports)), count.index)}"
-  protocol = "HTTP"
-  vpc_id   = "${var.vpc_id}"
+  port        = "${element(compact(split(",",local.instance_https_ports)), count.index)}"
+  protocol    = "HTTP"
+  target_type = "${var.target_type}"
+  vpc_id      = "${var.vpc_id}"
 
   #deregistration_delay  = "${}"
-  #target_type           = "${}"
   health_check {
     interval            = "${var.health_check_interval}"
     path                = "${var.health_check_path}"
@@ -372,10 +372,10 @@ resource "aws_lb_target_group" "network" {
   protocol     = "TCP"
   stickiness   = []
   tags         = "${module.label.tags}"
+  target_type  = "${var.target_type}"
   vpc_id       = "${var.vpc_id}"
 
   #deregistration_delay  = "${}"
-  #target_type           = "${}"
   lifecycle {
     create_before_destroy = true
   }
@@ -462,3 +462,4 @@ resource "aws_lb_listener_rule" "this" {
   }
 }
 */
+
