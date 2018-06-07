@@ -231,6 +231,11 @@ variable "lb_tcp_ports" {
   default     = ""
 }
 
+variable "target_type" {
+  description = "Type for targets for target group. Can be: instance or ip"
+  default     = "instance"
+}
+
 ///
 /// Health Checks
 ///
