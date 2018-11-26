@@ -18,7 +18,7 @@
 
 module "enable_logging" {
   source  = "devops-workflow/boolean/local"
-  version = "0.1.1"
+  version = "0.1.2"
   value   = "${var.enable_logging}"
 }
 
